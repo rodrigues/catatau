@@ -40,7 +40,7 @@ class PullRequest
     @mergeable  = params['pull_request']['mergeable']
     @sha        = params['pull_request']['head']['sha']
     @number     = params['pull_request']['number']
-    @branch_url = params['repo']['branches_url']
+    @branch_url = params['pull_request']['repo']['branches_url']
   end
 
   def merged?
