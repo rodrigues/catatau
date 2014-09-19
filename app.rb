@@ -10,7 +10,9 @@ get '/webhook' do
 end
 
 post '/webhook' do
+  puts "received: #{params}"
   pr = PullRequest.new(params)
+  puts "pr attributes: #{pr.attributes}"
   Jenkins.build(pr) if pr.mergeable?
   status 200
 end
@@ -50,6 +52,18 @@ class PullRequest
   def branch
     @branch ||= @branch_url.gsub(/\A(.*)\/branches\//, '')
   end
+
+  def attributes
+    {
+      action: action,
+      sha: sha,
+      number: number,
+      branch_url: @branch_url,
+      branch: branch,
+      mergeable: mergeable?,
+      merged: merged?
+    }
+  end
 end
 
 module Jenkins
@@ -60,9 +74,13 @@ module Jenkins
 
     Config.templates.each do |template|
       name   = job_name(template, pr)
+      puts "new job name: #{name}"
       config = jenkins.job.get_config(template)
+      puts "new job config: #{config}"
       jenkins.job.create_or_update(name, config)
+      puts "created job"
       jenkins.job.build(name, sha: pr.sha)
+      puts "built job"
     end
   end
 
