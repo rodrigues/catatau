@@ -1,5 +1,5 @@
 require 'sinatra'
-require 'en'
+require 'en/namespace'
 require 'jenkins_api_client'
 require 'ostruct'
 require 'pry'
@@ -15,13 +15,16 @@ post '/webhook' do
   status 200
 end
 
+EN.load
+
 Catatau = EN::Namespace.new(:catatau)
 
-Config = OpenStuct.new(
+Config = OpenStruct.new(
   jenkins_url:      Catatau.fetch(:jenkins_url),
   jenkins_username: Catatau.fetch(:jenkins_username),
   jenkins_password: Catatau.fetch(:jenkins_password),
-  templates:        Catatau.fetch(:templates).split(',')
+  templates:        Catatau.fetch(:templates).split(','),
+  secret:           Catatau.fetch(:secret)
 )
 
 class PullRequest
