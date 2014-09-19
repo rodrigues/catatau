@@ -32,15 +32,15 @@ Config = OpenStruct.new(
 )
 
 class PullRequest
-  attr_reader :action, :sha, :number
+  attr_reader :action, :sha, :number, :branch
 
   def initialize(params)
-    @action     = params['action']
-    @merged     = params['pull_request']['merged']
-    @mergeable  = params['pull_request']['mergeable']
-    @sha        = params['pull_request']['head']['sha']
-    @number     = params['pull_request']['number']
-    @branch_url = params['pull_request']['repo']['branches_url']
+    @action    = params['action']
+    @merged    = params['pull_request']['merged']
+    @mergeable = params['pull_request']['mergeable']
+    @sha       = params['pull_request']['head']['sha']
+    @number    = params['pull_request']['number']
+    @branch    = params['pull_request']['head']['label'].split(':').last
   end
 
   def merged?
@@ -51,16 +51,11 @@ class PullRequest
     @mergeable
   end
 
-  def branch
-    @branch ||= @branch_url.gsub(/\A(.*)\/branches\//, '')
-  end
-
   def attributes
     {
       action: action,
       sha: sha,
       number: number,
-      branch_url: @branch_url,
       branch: branch,
       mergeable: mergeable?,
       merged: merged?
