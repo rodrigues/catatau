@@ -84,7 +84,8 @@ module Jenkins
   end
 
   def job_name(template, pr)
-    "pr_#{pr.number}_template_#{pr.branch}"
+    branch = pr.branch.gsub('/', '-')
+    "pr_#{pr.number}_#{template}_#{branch}"
   end
 
   def client
