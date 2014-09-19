@@ -2,6 +2,8 @@
 
 Simple sinatra github webhook that creates and triggers jenkins jobs.
 
+See [app.rb](https://github.com/rodrigues/catatau/blob/master/app.rb) and you will eventually understand everything :)
+
 ### Configuration
 
 Load the following environment variables:
