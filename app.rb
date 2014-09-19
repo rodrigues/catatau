@@ -12,10 +12,9 @@ end
 
 post '/webhook' do
   json = JSON.parse(request.body.read)
-  puts "received: #{json}"
   pr = PullRequest.new(json)
   puts "pr attributes: #{pr.attributes}"
-  Jenkins.build(pr) if pr.mergeable?
+  Jenkins.build(pr) if pr.open?
   status 200
 end
 
@@ -32,23 +31,19 @@ Config = OpenStruct.new(
 )
 
 class PullRequest
-  attr_reader :action, :sha, :number, :branch
+  attr_reader :action, :sha, :number, :branch, :state
 
   def initialize(params)
-    @action    = params['action']
-    @merged    = params['pull_request']['merged']
-    @mergeable = params['pull_request']['mergeable']
-    @sha       = params['pull_request']['head']['sha']
-    @number    = params['pull_request']['number']
-    @branch    = params['pull_request']['head']['label'].split(':').last
+    @action = params['action']
+    @merged = params['pull_request']['merged']
+    @sha    = params['pull_request']['head']['sha']
+    @number = params['pull_request']['number']
+    @branch = params['pull_request']['head']['label'].split(':').last
+    @state  = params['pull_request']['state']
   end
 
   def merged?
     @merged
-  end
-
-  def mergeable?
-    @mergeable
   end
 
   def attributes
@@ -57,9 +52,12 @@ class PullRequest
       sha: sha,
       number: number,
       branch: branch,
-      mergeable: mergeable?,
       merged: merged?
     }
+  end
+
+  def open?
+    state == 'open'
   end
 end
 
@@ -77,7 +75,7 @@ module Jenkins
       jenkins.job.create_or_update(name, config)
       puts "created job"
       jenkins.job.build(name, sha: pr.sha)
-      puts "built job"
+      puts "built job with sha: #{pr.sha}"
     end
   end
 
