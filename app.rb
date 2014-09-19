@@ -2,6 +2,7 @@ require 'sinatra'
 require 'en/namespace'
 require 'jenkins_api_client'
 require 'ostruct'
+require 'json'
 require 'pry'
 
 get '/webhook' do
@@ -10,8 +11,9 @@ get '/webhook' do
 end
 
 post '/webhook' do
-  puts "received: #{params}"
-  pr = PullRequest.new(params)
+  json = JSON.parse(request.body.read)
+  puts "received: #{json}"
+  pr = PullRequest.new(json)
   puts "pr attributes: #{pr.attributes}"
   Jenkins.build(pr) if pr.mergeable?
   status 200
