@@ -69,13 +69,9 @@ module Jenkins
 
     Config.templates.each do |template|
       name   = job_name(template, pr)
-      puts "new job name: #{name}"
       config = jenkins.job.get_config(template)
-      puts "new job config: #{config}"
       jenkins.job.create_or_update(name, config)
-      puts "created job"
       jenkins.job.build(name, sha: pr.sha)
-      puts "built job with sha: #{pr.sha}"
     end
   end
 
