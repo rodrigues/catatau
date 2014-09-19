@@ -35,12 +35,12 @@ class PullRequest
   attr_reader :action, :sha, :number
 
   def initialize(params)
-    @action     = params[:action]
-    @merged     = params[:pull_request][:merged]
-    @mergeable  = params[:pull_request][:mergeable]
-    @sha        = params[:pull_request][:head][:sha]
-    @number     = params[:pull_request][:number]
-    @branch_url = params[:repo][:branches_url]
+    @action     = params['action']
+    @merged     = params['pull_request']['merged']
+    @mergeable  = params['pull_request']['mergeable']
+    @sha        = params['pull_request']['head']['sha']
+    @number     = params['pull_request']['number']
+    @branch_url = params['repo']['branches_url']
   end
 
   def merged?
