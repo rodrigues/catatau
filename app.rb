@@ -14,7 +14,13 @@ post '/webhook' do
   json = JSON.parse(request.body.read)
   pr = PullRequest.new(json)
   puts "pr attributes: #{pr.attributes}"
-  Jenkins.build(pr) if pr.opened?
+
+  if pr.opened? || pr.synchronize?
+    Jenkins.build(pr)
+  elsif pr.closed?
+    Jenkins.close(pr)
+  end
+
   status 200
 end
 
@@ -56,7 +62,7 @@ class PullRequest
     }
   end
 
-  %w(opened labeled closed).each do |action|
+  %w(opened labeled closed synchronize).each do |action|
     define_method("#{action}?") { self.action == action }
   end
 end
@@ -70,9 +76,19 @@ module Jenkins
     Config.templates.each do |template|
       name   = job_name(template, pr)
       config = jenkins.job.get_config(template)
+      config.gsub!('<disabled>true</disabled>', '<disabled>false</disabled>')
       config.gsub!('TEMPLATE_BRANCH', pr.branch)
       jenkins.job.create_or_update(name, config)
       jenkins.job.build(name)
+    end
+  end
+
+  def close(pr)
+    jenkins = client
+
+    Config.templates.each do |template|
+      name = job_name(template, pr)
+      jenkins.job.delete(name) rescue nil
     end
   end
 
