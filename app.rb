@@ -70,8 +70,9 @@ module Jenkins
     Config.templates.each do |template|
       name   = job_name(template, pr)
       config = jenkins.job.get_config(template)
+      config.gsub!('TEMPLATE_BRANCH', pr.branch)
       jenkins.job.create_or_update(name, config)
-      jenkins.job.build(name, sha: pr.sha)
+      jenkins.job.build(name)
     end
   end
 
