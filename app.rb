@@ -14,7 +14,7 @@ post '/webhook' do
   json = JSON.parse(request.body.read)
   pr = PullRequest.new(json)
   puts "pr attributes: #{pr.attributes}"
-  Jenkins.build(pr) if pr.open?
+  Jenkins.build(pr) if pr.opened?
   status 200
 end
 
@@ -56,8 +56,8 @@ class PullRequest
     }
   end
 
-  def open?
-    state == 'open'
+  %i(opened labeled closed).each do |action|
+    define_method("#{action}?") { self.action == action.to_s }
   end
 end
 
