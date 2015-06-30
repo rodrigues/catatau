@@ -56,8 +56,8 @@ class PullRequest
     }
   end
 
-  %i(opened labeled closed).each do |action|
-    define_method("#{action}?") { self.action == action.to_s }
+  %w(opened labeled closed).each do |action|
+    define_method("#{action}?") { self.action == action }
   end
 end
 
