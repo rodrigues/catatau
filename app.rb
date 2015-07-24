@@ -92,6 +92,15 @@ module Jenkins
     end
   end
 
+  def launch_slave_agents
+    jenkins = client
+
+    jenkins.node.list.lazy.grep(/jenkins-/).each do |machine_id|
+      monitor = jenkins.node.get_node_monitorData(machine_id)
+      jenkins.api_post_request("/computer/#{jenkins.node.path_encode(machine_id)}/launchSlaveAgent")
+    end
+  end
+
   def templates
     Config.templates
   end
